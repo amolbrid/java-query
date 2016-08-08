@@ -1,11 +1,23 @@
 package javaquery;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Queue;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class MethodNameParser {
   private static final String REG_EX = "(?<=[a-z])(?=[A-Z])";
+  private String tableName;
+
+  public MethodNameParser() {
+  }
+
+  public MethodNameParser(String tableName) {
+    this.tableName = tableName;
+  }
 
   public Query parse(String functionName) {
     String[] tokens = functionName.split(REG_EX);
@@ -17,9 +29,12 @@ public class MethodNameParser {
     Queue<String> queue = new ArrayDeque<>(Arrays.asList(tokens));
 
     String select = queue.remove();
-    String tableName = queue.remove();
     if (!select.equals("get")) {
       throw new IllegalArgumentException("Must start with 'get'");
+    }
+
+    if (tableName == null) {
+      tableName = buildTableName(queue);
     }
 
     Query query = new Query(tableName);
@@ -33,6 +48,18 @@ public class MethodNameParser {
     }
 
     return query;
+  }
+
+  private String buildTableName(Queue<String> queue) {
+    List<String> tableNameTokens = new ArrayList<>();
+    for (;;) {
+      tableNameTokens.add(queue.remove().toLowerCase());
+      if (queue.isEmpty() || queue.peek().equalsIgnoreCase("by")) {
+        break;
+      }
+    }
+
+    return tableNameTokens.stream().collect(Collectors.joining("_"));
   }
 
   private Node buildWhere(Queue<String> queue) {

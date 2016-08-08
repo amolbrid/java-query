@@ -1,3 +1,4 @@
+image: java:8u91-jdk
 build:
   script:
     - "./gradlew clean build"
