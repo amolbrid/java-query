@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Specifies table on which to run query.
+ *
+ * @author Amol Brid
  */
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = ElementType.METHOD)
